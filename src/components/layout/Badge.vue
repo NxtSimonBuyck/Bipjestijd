@@ -4,3 +4,8 @@
     <slot></slot>
   </li>
 </template>
+<style lang="css" scoped>
+.badge {
+  background-color: green;
+}
+</style>
