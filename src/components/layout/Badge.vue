@@ -6,6 +6,6 @@
 </template>
 <style lang="css" scoped>
 .badge {
-  background-color: green;
+  background-color: lightblue;
 }
 </style>

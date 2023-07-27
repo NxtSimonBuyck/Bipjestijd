@@ -1,35 +1,29 @@
 <script setup lang="ts">
-import { db } from "./firebase";
+// import { db } from "./firebase";
 
-import { useCollection } from "vuefire";
-import { collection } from "firebase/firestore";
+// import { useCollection } from "vuefire";
+// import { collection } from "firebase/firestore";
+import { useCurrentUser } from "vuefire";
+import { watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-const movies = useCollection(collection(db, "cinema"));
-const users = useCollection(collection(db, "users"));
+// const movies = useCollection(collection(db, "movies"));
+
+const currentFirebaseUser = useCurrentUser();
+const route = useRoute();
+const router = useRouter();
+
+watch(currentFirebaseUser, async (currenUser, previousUser) => {
+  if(!currenUser && previousUser && route.meta.requiresAuth) {
+    await router.push("/login");
+  }
+});
 </script>
 <template>
-  <div id="app">
-    movies:
-    <ul>
-      <li v-for="movie in movies" :key="movie.id">
-        <span>{{ movie.title || "-" }}</span>
-        <ul>
-          <li v-for="genre in movie.genres" :key="genre.id">
-            {{ genre.name }}
-          </li>
-        </ul>
-      </li>
-    </ul>
-    users:
-    <ul>
-      <li v-for="user in users" :key="user.id">
-        <span>{{ user.name || "-" }}</span>
-        <ul>
-          <li v-for="movie in user.movies" :key="movie.id">
-            {{ movie.title }}
-          </li>
-        </ul>
-      </li>
-  </div>
+  <RouterView v-slot="{ Component }">
+    <transition name="fade">
+      <Component :is="Component" />
+    </transition>
+  </RouterView>
 </template>
 <style scoped></style>

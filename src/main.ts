@@ -3,6 +3,7 @@ import { VueFire, VueFireAuth } from 'vuefire'
 import App from './App.vue'
 import './style.css'
 import { firebaseApp } from './firebase'
+import { router } from './core/routes'
 
 // import App.vue
 
@@ -16,5 +17,6 @@ app.use(VueFire, {
     VueFireAuth(),
   ],
 })
+app.use(router)
 
 app.mount('#app')

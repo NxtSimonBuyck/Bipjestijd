@@ -1,17 +1,20 @@
 <script lang="ts" setup>
-import Badge from '../layout/badge.vue';
+import { PropType } from 'vue';
+import Badge from '../layout/Badge.vue';
 
-const props = defineProps({
-  badges: {
-    type: Array,
-    required: true,
-  },
+
+defineProps({
+  items: { type: Array as PropType<Array<any>>, default: () => [] },
 });
+
+const emits = defineEmits<{
+  click: [genre: any]
+}>()
 </script>
 <template>
   <ul>
-    <Badge v-for="badge in badges" :key="badge.id">
-      {{ badge.name }}
+    <Badge v-for="item in items" :key="item.id" @click="emits('click', item)">
+      {{ item.name }}
     </Badge>
   </ul>
 </template>
