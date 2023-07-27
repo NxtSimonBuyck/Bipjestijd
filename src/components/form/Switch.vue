@@ -118,9 +118,9 @@ function setValue(option: any) {
    }
 
    &--primary {
-      background-color: green;
-      border-color: green;
-      color: white;
+      background-color: lightblue;
+      border-color: lightblue;
+      color: black;
       &:hover {
          background-color: lightskyblue;
       }
