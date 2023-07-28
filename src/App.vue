@@ -14,7 +14,7 @@ const route = useRoute();
 const router = useRouter();
 
 watch(currentFirebaseUser, async (currenUser, previousUser) => {
-  if(!currenUser && previousUser && route.meta.requiresAuth) {
+  if (!currenUser && previousUser && route.meta.requiresAuth) {
     await router.push("/login");
   }
 });
@@ -22,7 +22,9 @@ watch(currentFirebaseUser, async (currenUser, previousUser) => {
 <template>
   <RouterView v-slot="{ Component }">
     <transition name="fade">
-      <Component :is="Component" />
+      <KeepAlive>
+        <Component :is="Component" />
+      </KeepAlive>
     </transition>
   </RouterView>
 </template>

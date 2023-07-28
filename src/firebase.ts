@@ -18,5 +18,3 @@ export const firebaseApp = initializeApp(firebaseConfig);
 // used for the firestore refs
 export const db = getFirestore(firebaseApp);
 
-export const todosRef = collection(db, "todos");
-console.log(todosRef);

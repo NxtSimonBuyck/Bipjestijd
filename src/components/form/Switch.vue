@@ -3,10 +3,10 @@ import { PropType } from "vue";
 
 const props = defineProps({
   name: { type: String, default: "switch" },
-  modelValue: { type: Number, default: false },
+  modelValue: { type: [Number, String], default: false },
   options: {
     type: Array as PropType<
-      Array<{ id: number; title: string; disabled?: boolean }>
+      Array<{ id: number | string; title: string; disabled?: boolean }>
     >,
     default: () => [],
   },
@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [value: number];
+  "update:modelValue": [value: number | string];
 }>();
 
 function getUniqueKey(option: any) {
@@ -107,26 +107,26 @@ function setValue(option: any) {
 }
 
 .nxt-button {
-   border-width: 2px;
-   border-style: solid;
+  border-width: 2px;
+  border-style: solid;
 
-   &:hover:not(.nxt-button--primary) {
-      filter: brightness(0.9);
-   }
-   &:active:not(.nxt-button--primary) {
-      filter: brightness(0.8);
-   }
+  &:hover:not(.nxt-button--primary) {
+    filter: brightness(0.9);
+  }
+  &:active:not(.nxt-button--primary) {
+    filter: brightness(0.8);
+  }
 
-   &--primary {
-      background-color: lightblue;
-      border-color: lightblue;
-      color: black;
-      &:hover {
-         background-color: lightskyblue;
-      }
-      &:active {
-         background-color: lightskyblue;
-      }
-   }
+  &--primary {
+    background-color: lightblue;
+    border-color: lightblue;
+    color: black;
+    &:hover {
+      background-color: lightskyblue;
+    }
+    &:active {
+      background-color: lightskyblue;
+    }
+  }
 }
 </style>
