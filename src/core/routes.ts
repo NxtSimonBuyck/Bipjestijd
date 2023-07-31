@@ -54,4 +54,6 @@ router.beforeEach(async (to, from, next) => {
     if (!currentFirebaseUser) return next({ path: "/login" });
     return next();
   }
+
+  return next();
 });

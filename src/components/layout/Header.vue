@@ -1,7 +1,15 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
+import { useFirebaseAuth } from "vuefire";
 
 const isDark = ref(false);
+
+const auth = useFirebaseAuth()!;
+
+function logout() {
+  auth.signOut();
+  console.log("logout");
+}
 </script>
 <template>
   <header>
@@ -27,6 +35,8 @@ const isDark = ref(false);
         </ul>
       </nav>
     </div>
+
+    <p @click="logout()">logout</p>
     <!-- <div class="nav__links__item">
       <i :class="['icon', !isDark ? 'fas fa-moon' : 'fas fa-sun']"></i
       >{{ isDark ? "Go Light" : "Go Dark" }}
