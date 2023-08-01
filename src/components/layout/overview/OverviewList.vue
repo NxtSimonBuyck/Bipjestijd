@@ -9,8 +9,17 @@ defineProps({
 });
 </script>
 <template>
-  <ul>
+  <ul class="overview-list">
     <OverviewListItem v-for="item in items" :key="item.id" :item="item" />
   </ul>
 </template>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.overview-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: var(--spacing-xlarge);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>

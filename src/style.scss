@@ -1,2 +1,28 @@
-@import './assets/scss/root.scss';
-@import 'reset-css';
+@import "./assets/scss/root.scss";
+@import "reset-css";
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+// make 10px = 1rem
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  font-size: 62.5%;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#app {
+  font-size: var(--font-size);
+}

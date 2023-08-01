@@ -3,14 +3,13 @@ import {
   UserCredential,
   getRedirectResult,
   signInWithPopup,
-  signInWithRedirect,
 } from "firebase/auth";
 import { onMounted, ref } from "vue";
-import { useCollection, useDocument, useFirebaseAuth } from "vuefire";
+import { useFirebaseAuth } from "vuefire";
 import { GoogleAuthProvider } from "firebase/auth";
 import Input from "../components/form/Input.vue";
 import { db } from "../firebase";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 const googleAuthProvider = new GoogleAuthProvider();
 
 const auth = useFirebaseAuth()!; // only exists on client side
