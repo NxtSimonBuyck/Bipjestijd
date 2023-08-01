@@ -6,6 +6,7 @@ import { db } from "../../../firebase";
 import {
   collection,
   endAt,
+  getCountFromServer,
   getDoc,
   getDocs,
   limit,
@@ -14,35 +15,44 @@ import {
   startAfter,
 } from "firebase/firestore";
 import { Cinema } from "../../../core/store/cinema/cinema.interface";
+import { watchDebounced } from "@vueuse/core";
+
+onMounted(async () => {
+  await getItems();
+});
 
 // #region filters
 const activeCollection = ref("movies");
 provide("activeCollection", activeCollection);
 
 const currentPage = ref(1);
-const perPage = ref(1);
+const lastPage = ref(1);
+const perPage = ref(2);
 const filters = ref({
   search: "",
   genres: [],
 });
 provide("filters", filters);
 
-watch(activeCollection, async () => {
-  await getItems(true);
-});
+
 
 watch(currentPage, async (newValue, oldValue) => {
   const type = newValue > oldValue ? "next" : "prev";
   await getItems(false, type);
 });
 
+
 watch(perPage, async () => {
   await getItems(true);
 });
 
-watch(filters.value, async () => {
-  await getItems(true);
-});
+watchDebounced(filters.value,
+  async () => {
+    console.log("debounced", filters.value)
+    await getItems(true);
+  },
+  { debounce: 500 }
+);
 // #endregion
 
 // #region pagination
@@ -52,19 +62,22 @@ const activeCollectionRef = computed(() => {
     : collection(db, "series");
 });
 
-onMounted(async () => {
-  await getItems();
-});
-
 const items = ref([] as Cinema[]);
 const lastVisibleItem = ref();
 const firstVisibleItem = ref();
+
+watch(activeCollection, async () => {
+  await getItems(true);
+
+  const snapshot = await getCountFromServer(activeCollectionRef.value);
+  lastPage.value = Math.ceil(snapshot.data().count / (perPage.value || 25));
+});
 
 const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
   let q = query(
     activeCollectionRef.value,
     orderBy("releaseYear", "desc"),
-    limit(1)
+    limit(perPage.value || 25)
   );
   if (!!lastVisibleItem.value && !resetPage && type === "next") {
     q = query(
@@ -144,6 +157,6 @@ function setPage(page: number) {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr auto 1fr;
-  height: 100%;
+  max-height: 100vh;
 }
 </style>

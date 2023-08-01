@@ -6,6 +6,10 @@
 </template>
 <style lang="css" scoped>
 .badge {
-  background-color: lightblue;
+  background-color: rgb(232, 250, 255);
+  border-radius: var(--border-radius);
+  width: max-content;
+
+  padding: var(--spacing) var(--spacing-large);
 }
 </style>

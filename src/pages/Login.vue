@@ -1,19 +1,42 @@
 <script lang="ts" setup>
-import { getRedirectResult, signInWithPopup, signInWithRedirect } from "firebase/auth";
+import {
+  UserCredential,
+  getRedirectResult,
+  signInWithPopup,
+  signInWithRedirect,
+} from "firebase/auth";
 import { onMounted, ref } from "vue";
-import { useFirebaseAuth } from "vuefire";
+import { useCollection, useDocument, useFirebaseAuth } from "vuefire";
 import { GoogleAuthProvider } from "firebase/auth";
 import Input from "../components/form/Input.vue";
+import { db } from "../firebase";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 const googleAuthProvider = new GoogleAuthProvider();
 
 const auth = useFirebaseAuth()!; // only exists on client side
+
+async function getUserData(user: UserCredential) {
+  const docRef = doc(db, "users", user.user.uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    // TODO: update user data in store
+    console.log("Document data:", docSnap.data());
+  } else {
+    await setDoc(doc(db, "users", user.user.uid), {
+      name: user.user.displayName,
+      email: user.user.email,
+      photoURL: user.user.photoURL,
+    });
+  }
+}
 
 // display errors if any
 const error = ref(null);
 function signinRedirect() {
   signInWithPopup(auth, googleAuthProvider)
-    .then((user) => {
-      console.log(user);
+    .then(async (user) => {
+      await getUserData(user);
     })
     .catch((reason) => {
       console.error("Failed signinRedirect", reason);
@@ -24,8 +47,9 @@ function signinRedirect() {
 // only on client side
 onMounted(() => {
   getRedirectResult(auth)
-    .then((test) => {
-      console.log(test);
+    .then(async (user) => {
+      if (!user) return;
+      await getUserData(user);
     })
     .catch((reason) => {
       console.error("Failed redirect result", reason);
