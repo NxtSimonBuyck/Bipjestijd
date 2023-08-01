@@ -16,13 +16,14 @@ import {
 } from "firebase/firestore";
 import { Cinema } from "../../../core/store/cinema/cinema.interface";
 import { watchDebounced } from "@vueuse/core";
+import CinemaForm from "../../form/cinema-form/CinemaForm.vue";
 
 onMounted(async () => {
   await getItems();
 });
 
 // #region filters
-const activeCollection = ref("movies");
+const activeCollection = ref<'movies' | 'series'>("movies");
 provide("activeCollection", activeCollection);
 
 const currentPage = ref(1);
@@ -34,21 +35,19 @@ const filters = ref({
 });
 provide("filters", filters);
 
-
-
 watch(currentPage, async (newValue, oldValue) => {
   const type = newValue > oldValue ? "next" : "prev";
   await getItems(false, type);
 });
 
-
 watch(perPage, async () => {
   await getItems(true);
 });
 
-watchDebounced(filters.value,
+watchDebounced(
+  filters.value,
   async () => {
-    console.log("debounced", filters.value)
+    console.log("debounced", filters.value);
     await getItems(true);
   },
   { debounce: 500 }
@@ -150,6 +149,7 @@ function setPage(page: number) {
       <p @click="setPage(2)">2</p>
     </div>
     <button class="button"><i class="fas fa-add"></i></button>
+    <CinemaForm :type="activeCollection"/>
   </div>
 </template>
 <style lang="css" scoped>
