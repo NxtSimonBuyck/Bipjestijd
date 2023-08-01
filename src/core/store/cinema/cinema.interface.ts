@@ -13,4 +13,10 @@ export interface Cinema {
   directors: Array<Director>;
   user: User;
   cover: string;
+  coverTypeKey: CoverTypeKey;
+}
+
+export enum CoverTypeKey {
+  Internal = 'internal',
+  External = 'external'
 }

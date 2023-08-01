@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import { PropType, computed } from "vue";
-import { Cinema } from "../../../core/store/cinema/cinema.interface";
+import { PropType, computed, ref, watch } from "vue";
+import { Cinema, CoverTypeKey } from "../../../core/store/cinema/cinema.interface";
 import Badges from "../Badges.vue";
+import { useFirebaseStorage } from "vuefire";
+import { ref as storageRef } from "@firebase/storage";
+import { getDownloadURL } from "firebase/storage";
 
 const props = defineProps({
   item: { type: Object as PropType<Cinema>, default: () => ({}) },
@@ -19,6 +22,26 @@ const savedIcon = computed(() =>
 const seenIcon = computed(() =>
   props.seen ? "fas fa-eye-slash" : "fas fa-eye"
 );
+
+// #region item cover
+const storage = useFirebaseStorage();
+const coverImage = ref<HTMLImageElement>();
+watch(coverImage, (newValue) => {
+  if(!newValue) return;
+  if(props.item.coverTypeKey === CoverTypeKey.External){
+    return newValue.src = props.item.cover;
+  }
+  getDownloadURL(
+    storageRef(storage, "covers/Guardians_of_the_Galaxy_Vol_3_poster.jpeg")
+  )
+    .then((url) => {
+      newValue.src = url;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+// #endregion
 </script>
 <template>
   <li class="overview-list-item">
@@ -28,10 +51,9 @@ const seenIcon = computed(() =>
         <li :class="['icon', savedIcon]"></li>
         <li :class="['icon', seenIcon]"></li>
       </ul>
-      <!-- TODO: replace the temp url -->
       <img
+      ref="coverImage"
         class="overview-list-item-cover-image"
-        src="https://picsum.photos/178/267"
         :alt="item.title"
         height="267"
         width="178"
@@ -78,6 +100,12 @@ const seenIcon = computed(() =>
     width: 178px;
     height: 267px;
     overflow: hidden;
+
+    &-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
     &-actions {
       position: absolute;
