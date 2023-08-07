@@ -16,6 +16,8 @@ import {
 } from "firebase/firestore";
 import { Cinema } from "../../../core/store/cinema/cinema.interface";
 import { watchDebounced } from "@vueuse/core";
+import CinemaForm from "../../../pages/Cinema/cinema-form/CinemaForm.vue";
+import OverviewPaging from "./OverviewPaging.vue";
 
 onMounted(async () => {
   await getItems();
@@ -26,8 +28,11 @@ const activeCollection = ref("movies");
 provide("activeCollection", activeCollection);
 
 const currentPage = ref(1);
-const lastPage = ref(1);
-const perPage = ref(2);
+provide("currentPage", currentPage);
+const lastPage = ref(10);
+provide("lastPage", lastPage);
+const perPage = ref("10");
+provide("perPage", perPage);
 const filters = ref({
   search: "",
   genres: [],
@@ -41,10 +46,12 @@ watch(currentPage, async (newValue, oldValue) => {
   await getItems(false, type);
 });
 
-
-watch(perPage, async () => {
-  await getItems(true);
-});
+watch(
+  () => perPage.value,
+  async () => {
+    await getItems(true);
+  }
+);
 
 watchDebounced(filters.value,
   async () => {
@@ -70,21 +77,21 @@ watch(activeCollection, async () => {
   await getItems(true);
 
   const snapshot = await getCountFromServer(activeCollectionRef.value);
-  lastPage.value = Math.ceil(snapshot.data().count / (perPage.value || 25));
+  lastPage.value = Math.ceil(snapshot.data().count / (+perPage.value || 20));
 });
 
 const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
   let q = query(
     activeCollectionRef.value,
     orderBy("releaseYear", "desc"),
-    limit(perPage.value || 25)
+    limit(+perPage.value || 20)
   );
   if (!!lastVisibleItem.value && !resetPage && type === "next") {
     q = query(
       activeCollectionRef.value,
       orderBy("releaseYear", "desc"),
       startAfter(lastVisibleItem.value),
-      limit(perPage.value || 25)
+      limit(+perPage.value || 20)
     );
   }
   if (!!firstVisibleItem.value && !resetPage && type === "prev") {
@@ -92,7 +99,7 @@ const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
       activeCollectionRef.value,
       orderBy("releaseYear", "desc"),
       endAt(firstVisibleItem.value),
-      limit(perPage.value || 25)
+      limit(+perPage.value || 20)
     );
   }
 
@@ -145,11 +152,17 @@ function setPage(page: number) {
     <div class="overview-page__content">
       <OverviewList :items="items"></OverviewList>
     </div>
-    <div>
-      <p @click="setPage(1)">1</p>
-      <p @click="setPage(2)">2</p>
-    </div>
-    <button class="button"><i class="fas fa-add"></i></button>
+    <OverviewPaging
+      :current-page="currentPage"
+      :last-page="lastPage"
+      :set-page="setPage"
+    />
+    <span @click="openCreateForm"><i class="fas fa-add"></i></span>
+    <CinemaForm
+      v-if="showCreateForm"
+      :type="activeCollection"
+      @close="openCreateForm"
+    />
   </div>
 </template>
 <style lang="css" scoped>
