@@ -1,5 +1,4 @@
 import { Genre } from "../genres/genre.interface";
-import { User } from "../user/user.interface";
 import { Actor } from "./actors.interface";
 import { Director } from "./directors.interface";
 
@@ -11,7 +10,7 @@ export interface Cinema {
   description: string;
   actors: Array<Actor>;
   directors: Array<Director>;
-  user: User;
+  userId: string;
   cover: string;
   coverTypeKey: CoverTypeKey;
 }

@@ -2,7 +2,7 @@
 import { PropType, computed, ref, watch } from "vue";
 import { Cinema, CoverTypeKey } from "../../../core/store/cinema/cinema.interface";
 import Badges from "../Badges.vue";
-import { useFirebaseStorage } from "vuefire";
+import { useCurrentUser, useFirebaseStorage } from "vuefire";
 import { ref as storageRef } from "@firebase/storage";
 import { getDownloadURL } from "firebase/storage";
 
@@ -23,23 +23,23 @@ const seenIcon = computed(() =>
   props.seen ? "fas fa-eye-slash" : "fas fa-eye"
 );
 
+const currentUser = await useCurrentUser();
+
 // #region item cover
 const storage = useFirebaseStorage();
 const coverImage = ref<HTMLImageElement>();
-watch(coverImage, (newValue) => {
+watch([coverImage, () => props.item], ([newValue]) => {
   if(!newValue) return;
   if(props.item.coverTypeKey === CoverTypeKey.External){
     return newValue.src = props.item.cover;
   }
+  if(!props.item.cover) return newValue.src = "";
   getDownloadURL(
-    storageRef(storage, "covers/Guardians_of_the_Galaxy_Vol_3_poster.jpeg")
+    storageRef(storage, `covers/${props.item.cover}`)
   )
     .then((url) => {
       newValue.src = url;
     })
-    .catch((error) => {
-      console.log(error);
-    });
 });
 // #endregion
 </script>
@@ -60,7 +60,10 @@ watch(coverImage, (newValue) => {
       />
     </div>
     <div class="overview-list-item-content">
-      <h2>{{ item.title }} ({{ item.releaseYear }})</h2>
+      <div>
+        <h2>{{ item.title }} ({{ item.releaseYear }})</h2>
+        <i v-if="item.userId === currentUser?.uid" class="icon fas fa-pen"></i>
+      </div>
       <Badges :items="item.genres"></Badges>
       <p>{{ item.description }}</p>
       <p>

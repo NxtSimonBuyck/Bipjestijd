@@ -19,6 +19,7 @@ defineProps({
 
   &.-active {
     background-color: var(--accent-color);
+    color: var(--primary-color);
 
     &:hover {
       background-color: var(--accent-color-dark);

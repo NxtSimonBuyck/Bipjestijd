@@ -16,14 +16,14 @@ import {
 } from "firebase/firestore";
 import { Cinema } from "../../../core/store/cinema/cinema.interface";
 import { watchDebounced } from "@vueuse/core";
-import CinemaForm from "../../form/cinema-form/CinemaForm.vue";
+import CinemaForm from "../../../pages/Cinema/cinema-form/CinemaForm.vue";
 
 onMounted(async () => {
   await getItems();
 });
 
 // #region filters
-const activeCollection = ref<'movies' | 'series'>("movies");
+const activeCollection = ref<"movies" | "series">("movies");
 provide("activeCollection", activeCollection);
 
 const currentPage = ref(1);
@@ -136,6 +136,14 @@ function setPage(page: number) {
   currentPage.value = page;
 }
 // #endregion
+
+// #region CREATE cinema
+const showCreateForm = ref(false);
+function openCreateForm() {
+  console.log("openCreateForm");
+  showCreateForm.value = !showCreateForm.value;
+}
+// #endregion
 </script>
 <template>
   <div class="overview-page">
@@ -148,8 +156,8 @@ function setPage(page: number) {
       <p @click="setPage(1)">1</p>
       <p @click="setPage(2)">2</p>
     </div>
-    <button class="button"><i class="fas fa-add"></i></button>
-    <CinemaForm :type="activeCollection"/>
+    <span @click="openCreateForm"><i class="fas fa-add"></i></span>
+    <CinemaForm v-if="showCreateForm" :type="activeCollection" @close="openCreateForm" />
   </div>
 </template>
 <style lang="css" scoped>

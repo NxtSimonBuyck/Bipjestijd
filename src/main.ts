@@ -4,7 +4,6 @@ import App from './App.vue'
 import './style.scss'
 import { firebaseApp } from './firebase'
 import { router } from './core/routes'
-
 // import App.vue
 
 const app = createApp(App)

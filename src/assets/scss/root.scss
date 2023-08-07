@@ -19,9 +19,9 @@
   --secondary-color-dark: #1E1F26;
   --secondary-color-light: #3A3C44;
 
-  --accent-color: #F2C94C;
-  --accent-color-dark: #ebc245;
-  --accent-color-light: #f5ce58;
+  --accent-color: #D81D09;
+  --accent-color-dark: #bd1907;
+  --accent-color-light: #ec301b;
 
   --grey-color: #EAEAEA;
   --grey-color-dark: #dfdfdf;
@@ -48,4 +48,19 @@
   --font-size-xlarge: 3.2rem;
 
   --drop-shadow: 0px 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.visually-hidden {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+}
+
+.error {
+  color: var(--error-color);
 }

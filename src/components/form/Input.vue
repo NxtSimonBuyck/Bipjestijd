@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, PropType, ref } from "vue";
+import { ErrorObject } from "@vuelidate/core";
 
 const emits = defineEmits<{
   "update:modelValue": [value: string];
@@ -30,8 +31,9 @@ const props = defineProps({
   modelValue: { type: [String, Number], default: "" },
   modelModifiers: { type: Object, default: () => ({}) },
 
-  errors: { type: Object, default: () => ({}) },
+  errors: { type: Array  as PropType<ErrorObject[]>, default: () => [] },
   description: { type: String, default: "" },
+  accept: { type: String, default: null },
 
   mask: { type: [String, Object], default: null },
   mode: {
@@ -48,7 +50,7 @@ const props = defineProps({
   tabindex: { type: [String, Number], default: 0 },
 });
 
-const error = computed(() => props.errors?.[props.name]);
+const error = computed(() => props.errors?.[0]?.$message);
 const lastCursorPosition = ref(0);
 
 function handleInput(event: Event) {
@@ -70,6 +72,7 @@ function setLastCursorPosition(event: Event) {
 </script>
 
 <template>
+  
   <div
     :class="[
       'group',
@@ -104,6 +107,7 @@ function setLastCursorPosition(event: Event) {
         :max="max"
         :title="title"
         :tabindex="tabindex"
+        :accept="accept"
         autocomplete="off"
         @input="handleInput"
         @change="handleChange"
@@ -119,7 +123,7 @@ function setLastCursorPosition(event: Event) {
     </div>
 
     <small v-if="error || description">
-      <span v-if="error">{{ error }}</span>
+      <span class="error" v-if="error">{{ error }}</span>
       <span v-else-if="description">{{ description }}</span>
     </small>
   </div>

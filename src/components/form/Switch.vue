@@ -3,6 +3,9 @@ import { PropType } from "vue";
 
 const props = defineProps({
   name: { type: String, default: "switch" },
+  label: { type: String, default: "" },
+  labelIconClass: { type: String, default: "" },
+  labelIconColor: { type: String, default: "" },
   modelValue: { type: [Number, String], default: false },
   options: {
     type: Array as PropType<
@@ -44,6 +47,13 @@ function setValue(option: any) {
       :disabled="disabled"
       :required="required"
     />
+
+    <label v-if="label" :for="name" class="group__label">
+      {{ label }}
+      <slot name="icon">
+        <i :class="labelIconClass" :style="{ color: labelIconColor }" />
+      </slot>
+    </label>
     <div class="nxt-switch__buttons">
       <button
         v-for="(option, index) in options"
