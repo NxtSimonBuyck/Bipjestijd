@@ -12,7 +12,7 @@ const activeCollection = inject("activeCollection", 'movies');
 const filters = inject("filters", { search: "", genres: [] });
 </script>
 <template>
-  <div>
+  <div class="overview-page-filters">
     <Switch
       v-model="activeCollection"
       :name="'overview-page-switch'"
@@ -25,3 +25,10 @@ const filters = inject("filters", { search: "", genres: [] });
     />
   </div>
 </template>
+<style lang="scss" scoped>
+.overview-page-filters {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-large);
+}
+</style>
