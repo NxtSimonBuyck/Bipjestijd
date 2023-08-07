@@ -53,6 +53,13 @@ watch(
   }
 );
 
+watchDebounced(
+  filters.value,
+  async () => {
+    await getItems(true);
+  }
+);
+
 watchDebounced(filters.value,
   async () => {
     console.log("debounced", filters.value)
