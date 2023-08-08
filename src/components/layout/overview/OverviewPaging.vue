@@ -5,17 +5,14 @@ const perPage = inject("perPage", ref("10"));
 const currentPage = inject("currentPage", ref("1"));
 const lastPage = inject("lastPage", ref("1"));
 
-// give me current page and next 2 page numbers and previous 2 page numbers if they exist
-// if current page is 1, then give me 1, 2, 3, 4
-// if current page is 6, then give me 3, 4, 5, 6, 7, 8, 9
-// if last page, then give me lastpage -3, lastpage -2, lastpage -1, lastpage
 const pages = computed(() => {
   const pages = [];
   const currentPageNumber = parseInt(currentPage.value);
   const lastPageNumber = parseInt(lastPage.value);
 
   if (currentPageNumber === 1) {
-    for (let i = 1; i <= 4; i++) {
+    // check if current page is 1 and render pages not bigger than last page
+    for (let i = 1; i <= Math.min(3, lastPageNumber); i++) {
       pages.push(i);
     }
   } else if (currentPageNumber === lastPageNumber) {
@@ -31,14 +28,19 @@ const pages = computed(() => {
   return pages;
 });
 
-
 </script>
 <template>
-  <div>
-    <ul>
-      <li v-for="page in pages" @click="currentPage = `${page}`">{{ page }}</li>
+  <div class="pages-options">
+    <ul class="pages">
+      <li
+        :class="['page-item', { '-active': currentPage === `${page}` }]"
+        v-for="page in pages"
+        @click="currentPage = `${page}`"
+      >
+        {{ page }}
+      </li>
     </ul>
-    <div>
+    <div class="dropdown">
       <select v-model="perPage">
         <option value="10">10</option>
         <option value="20">20</option>
@@ -49,4 +51,67 @@ const pages = computed(() => {
     </div>
   </div>
 </template>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.pages-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing);
+
+  width: 100%;
+
+  position: relative;
+}
+
+.pages {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  gap: var(--spacing-small);
+}
+
+.page-item {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+
+  &.-active {
+    background-color: #ccc;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+select {
+  width: 100px;
+  height: 32px;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  option {
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ccc;
+    }
+  }
+
+
+}
+</style>

@@ -27,9 +27,9 @@ onMounted(async () => {
 const activeCollection = ref<"movies" | "series">("movies");
 provide("activeCollection", activeCollection);
 
-const currentPage = ref(1);
+const currentPage = ref('1');
 provide("currentPage", currentPage);
-const lastPage = ref(10);
+const lastPage = ref('10');
 provide("lastPage", lastPage);
 const perPage = ref("10");
 provide("perPage", perPage);
@@ -83,9 +83,11 @@ watch(activeCollection, async () => {
   await getItems(true);
 
   const snapshot = await getCountFromServer(activeCollectionRef.value);
-  lastPage.value = Math.ceil(snapshot.data().count / (+perPage.value || 20));
+  console.log("snapshot", `${Math.ceil(snapshot.data().count / (+perPage.value || 20))}`);
+  lastPage.value = `${Math.ceil(snapshot.data().count / (+perPage.value || 20))}`;
 });
 
+// TODO: refactor paging to use cursor instead of page number (https://firebase.google.com/docs/firestore/query-data/query-cursors)
 const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
   let q = query(
     activeCollectionRef.value,
@@ -147,7 +149,7 @@ const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
 };
 
 function setPage(page: number) {
-  currentPage.value = page;
+  currentPage.value = `${page}`;
 }
 // #endregion
 
