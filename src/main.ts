@@ -4,6 +4,7 @@ import App from './App.vue'
 import './style.scss'
 import { firebaseApp } from './firebase'
 import { router } from './core/routes'
+import { store, key } from './core/store/store'
 // import App.vue
 
 const app = createApp(App)
@@ -17,5 +18,6 @@ app.use(VueFire, {
   ],
 })
 app.use(router)
+app.use(store, key)
 
 app.mount('#app')

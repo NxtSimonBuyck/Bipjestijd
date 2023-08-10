@@ -26,6 +26,7 @@ async function getUserData(user: UserCredential) {
       name: user.user.displayName,
       email: user.user.email,
       photoURL: user.user.photoURL,
+      
     });
   }
 }
