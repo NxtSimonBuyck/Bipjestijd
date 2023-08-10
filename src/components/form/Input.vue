@@ -86,7 +86,7 @@ function setLastCursorPosition(event: Event) {
       </slot>
     </label>
 
-    <div class="nxt-input">
+    <div class="input">
       <input
         :type="type"
         :class="[

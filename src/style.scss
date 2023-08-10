@@ -24,3 +24,27 @@ body {
 #app {
   font-size: var(--font-size);
 }
+
+.icon {
+  display: flex;
+  width: var(--spacing-xlarge);
+  height: var(--spacing-xlarge);
+
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  background-color: var(--background-color);
+
+  &:hover {
+    background-color: var(--primary-color-dark);
+  }
+
+  &.-active {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+
+    &:hover {
+      background-color: var(--accent-color-dark);
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, inject, ref } from "vue";
 
-const perPage = inject("perPage", ref("10"));
+const perPage = inject("perPage", ref("1"));
 const currentPage = inject("currentPage", ref("1"));
 const lastPage = inject("lastPage", ref("1"));
 
@@ -19,6 +19,14 @@ const pages = computed(() => {
     for (let i = lastPageNumber - 3; i <= lastPageNumber; i++) {
       pages.push(i);
     }
+  } else if (currentPageNumber === 2) {
+    for (let i = currentPageNumber - 1; i <= currentPageNumber + 2; i++) {
+      pages.push(i);
+    }
+  } else if (currentPageNumber === lastPageNumber - 1) {
+    for (let i = currentPageNumber - 2; i <= currentPageNumber + 1; i++) {
+      pages.push(i);
+    }
   } else {
     for (let i = currentPageNumber - 2; i <= currentPageNumber + 2; i++) {
       pages.push(i);
@@ -27,7 +35,6 @@ const pages = computed(() => {
 
   return pages;
 });
-
 </script>
 <template>
   <div class="pages-options">
@@ -75,22 +82,34 @@ const pages = computed(() => {
 .page-item {
   width: 32px;
   height: 32px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--grey-color-dark);
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   border-radius: var(--border-radius);
 
+  &:hover {
+    background-color: var(--grey-color-dark);
+  }
+
   &.-active {
-    background-color: #ccc;
+    background-color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    color: var(--primary-color);
+
+    &:hover {
+      background-color: var(--accent-color-dark);
+      border: 1px solid var(--accent-color-dark);
+    }
   }
 }
 
 .dropdown {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: var(--spacing-large);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 select {
@@ -111,7 +130,5 @@ select {
       background-color: #ccc;
     }
   }
-
-
 }
 </style>

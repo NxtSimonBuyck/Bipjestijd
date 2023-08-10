@@ -21,15 +21,16 @@ import OverviewPaging from "./OverviewPaging.vue";
 
 onMounted(async () => {
   await getItems();
+  await getPageAmount();
 });
 
 // #region filters
 const activeCollection = ref<"movies" | "series">("movies");
 provide("activeCollection", activeCollection);
 
-const currentPage = ref('1');
+const currentPage = ref("1");
 provide("currentPage", currentPage);
-const lastPage = ref('10');
+const lastPage = ref("1");
 provide("lastPage", lastPage);
 const perPage = ref("10");
 provide("perPage", perPage);
@@ -51,12 +52,9 @@ watch(
   }
 );
 
-watchDebounced(
-  filters.value,
-  async () => {
-    await getItems(true);
-  }
-);
+watchDebounced(filters.value, async () => {
+  await getItems(true);
+});
 
 watchDebounced(
   filters.value,
@@ -79,15 +77,24 @@ const items = ref([] as Cinema[]);
 const lastVisibleItem = ref();
 const firstVisibleItem = ref();
 
+async function getPageAmount() {
+  const snapshot = await getCountFromServer(activeCollectionRef.value);
+  console.log(
+    "snapshot",
+    `${Math.ceil(snapshot.data().count / (+perPage.value || 20))}`
+  );
+  lastPage.value = `${Math.ceil(
+    snapshot.data().count / (+perPage.value || 20)
+  )}`;
+}
+
 watch(activeCollection, async () => {
   await getItems(true);
-
-  const snapshot = await getCountFromServer(activeCollectionRef.value);
-  console.log("snapshot", `${Math.ceil(snapshot.data().count / (+perPage.value || 20))}`);
-  lastPage.value = `${Math.ceil(snapshot.data().count / (+perPage.value || 20))}`;
+  await getPageAmount();
 });
 
 // TODO: refactor paging to use cursor instead of page number (https://firebase.google.com/docs/firestore/query-data/query-cursors)
+
 const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
   let q = query(
     activeCollectionRef.value,
@@ -121,23 +128,24 @@ const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
       const genres = await Promise.all(
         item.genres.map(async (doc) => {
           const genre = await getDoc(doc);
-          return genre.data();
+          return { id: doc.id, ...genre.data() };
         })
       );
       const actors = await Promise.all(
         item.actors.map(async (doc) => {
-          const actor = await getDoc(doc);
-          return actor.data();
+          const actor = await getDoc(doc); 
+          return { ...actor.data(), id: doc.id };
         })
       );
       const directors = await Promise.all(
         item.directors.map(async (doc) => {
           const director = await getDoc(doc);
-          return director.data();
+          return { ...director.data(), id: doc.id };
         })
       );
       return {
         ...item,
+        id: doc.id,
         genres,
         actors,
         directors,
@@ -147,10 +155,6 @@ const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
 
   items.value = mappedItems;
 };
-
-function setPage(page: number) {
-  currentPage.value = `${page}`;
-}
 // #endregion
 
 // #region CREATE cinema
@@ -168,12 +172,8 @@ function openCreateForm() {
     <div class="overview-page__content">
       <OverviewList :items="items"></OverviewList>
     </div>
-    <OverviewPaging
-      :current-page="currentPage"
-      :last-page="lastPage"
-      :set-page="setPage"
-    />
-    <span @click="openCreateForm"><i class="fas fa-add"></i></span>
+    <OverviewPaging />
+    <i class="add-button icon -active fas fa-add" @click="openCreateForm"></i>
     <CinemaForm
       v-if="showCreateForm"
       :type="activeCollection"
@@ -185,7 +185,14 @@ function openCreateForm() {
 .overview-page {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr auto 1fr;
-  max-height: 100vh;
+  grid-template-rows: 98px 1fr 64px;
+  height: 100vh;
+  padding-right: var(--spacing-xlarge);
+}
+
+.add-button {
+  position: absolute;
+  bottom: calc(64px + 16px);
+  right: var(--spacing-large);
 }
 </style>

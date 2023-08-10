@@ -38,7 +38,7 @@ function setValue(option: any) {
 }
 </script>
 <template>
-  <div :class="['nxt-switch', { '-danger': !!error }]">
+  <div :class="['switch', { '-danger': !!error }]">
     <input
       type="checkbox"
       :name="name"
@@ -54,15 +54,15 @@ function setValue(option: any) {
         <i :class="labelIconClass" :style="{ color: labelIconColor }" />
       </slot>
     </label>
-    <div class="nxt-switch__buttons">
+    <div class="switch__buttons">
       <button
         v-for="(option, index) in options"
         :key="getUniqueKey(option)"
         :disabled="disabled || option.disabled"
         type="button"
         :class="[
-          'nxt-switch__button nxt-button',
-          { 'nxt-button--primary': getUniqueKey(option) === modelValue },
+          'switch__button button',
+          { 'button--primary': getUniqueKey(option) === modelValue },
         ]"
         :title="option.title"
         @click.stop="setValue(option)"
@@ -75,7 +75,7 @@ function setValue(option: any) {
   </div>
 </template>
 <style lang="scss" scoped>
-.nxt-switch {
+.switch {
   input {
     height: 0;
     width: 0;
@@ -87,38 +87,40 @@ function setValue(option: any) {
   }
 
   &.-danger {
-    .nxt-switch__buttons {
+    .switch__buttons {
       border: 1px solid var(--nxt-red);
     }
   }
 }
 
-.nxt-switch__buttons {
-  background-color: var(--nxt-white);
+.switch__buttons {
+  background-color: var(--background-color);
   box-shadow: inset 0px 2px 2px rgba(0, 0, 0, 0.25);
-  border-radius: var(--nxt-radius);
+  border-radius: var(--border-radius);
   display: flex;
 }
 
-.nxt-switch__button {
+.switch__button {
   border: none;
   outline: none;
   width: 100%;
   height: auto;
-  min-height: var(--nxt-button-height);
+  background-color: var(--background-color);
+  padding: var(--spacing) var(--spacing-large);
+  border-radius: var(--border-radius);
+  box-shadow: inset 0px 2px 2px rgba(0, 0, 0, 0.25);
   &:focus,
   &:hover {
     &:not(.nxt-button--primary) {
-      background-color: var(--nxt-main-medium);
-      color: var(--nxt-dark);
+      background-color: var(--accent-color-dark);
+      color: var(--primary-color);
       filter: none;
     }
   }
 }
 
-.nxt-button {
-  border-width: 2px;
-  border-style: solid;
+.button {
+  
 
   &:hover:not(.nxt-button--primary) {
     filter: brightness(0.9);
@@ -128,14 +130,10 @@ function setValue(option: any) {
   }
 
   &--primary {
-    background-color: lightblue;
-    border-color: lightblue;
-    color: black;
+    background-color: var(--accent-color);
+    color: var(--primary-color);
     &:hover {
-      background-color: lightskyblue;
-    }
-    &:active {
-      background-color: lightskyblue;
+      background-color: var(--accent-color-dark);
     }
   }
 }
