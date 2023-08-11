@@ -42,6 +42,7 @@ const emits = defineEmits<{
   left: 0;
   right: 0;
   display: flex;
+  z-index: 1000;
   justify-content: center;
   background-color: #000000da;
   color: var(--text-color);

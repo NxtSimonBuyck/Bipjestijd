@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PropType, computed, ref, watch } from "vue";
+import { PropType, computed, inject, ref, watch } from "vue";
 import {
   Cinema,
   CoverTypeKey,
@@ -8,18 +8,24 @@ import Badges from "../Badges.vue";
 import { useCurrentUser, useFirebaseStorage } from "vuefire";
 import { ref as storageRef } from "@firebase/storage";
 import { getDownloadURL } from "firebase/storage";
+import { SlugTypes } from "../../../core/store/slug.interface";
 
 const props = defineProps({
   item: { type: Object as PropType<Cinema>, default: () => ({}) },
   liked: { type: Boolean, default: false },
   saved: { type: Boolean, default: false },
   seen: { type: Boolean, default: false },
+  partnerSaved: { type: Boolean, default: false },
+  partnerLiked: { type: Boolean, default: false },
+  partnerSeen: { type: Boolean, default: false },
 });
 const emits = defineEmits<{
-  onSaveItem: [id: string];
-  onLikeItem: [id: string];
-  onSeenItem: [id: string];
+  onSaveItem: [];
+  onLikeItem: [];
+  onSeenItem: [];
 }>();
+
+const slug = inject("slug", 'cinema' as SlugTypes);
 
 const likedIcon = computed(() =>
   props.liked ? "fas fa-heart-crack" : "fas fa-heart"
@@ -54,11 +60,42 @@ watch([coverImage, () => props.item], ([newValue]) => {
   <li class="overview-list-item">
     <div class="overview-list-item-cover">
       <ul class="overview-list-item-cover-actions">
-        <li><i :class="['icon', likedIcon]"></i></li>
+        <!-- <li>
+          <i
+            :class="[
+              'icon',
+              likedIcon,
+              {
+                '-liked': props.partnerLiked && slug === 'watchlist',
+              },
+            ]"
+            @click="emits('onLikeItem')"
+          ></i>
+        </li> -->
         <li>
-          <i :class="['icon', savedIcon]" @click="emits('onSaveItem', item.id)"></i>
+          <i
+            :class="[
+              'icon',
+              savedIcon,
+              {
+                '-saved': props.partnerSaved && slug === 'watchlist',
+              },
+            ]"
+            @click="emits('onSaveItem')"
+          ></i>
         </li>
-        <li><i :class="['icon', seenIcon]"></i></li>
+        <!-- <li>
+          <i
+            :class="[
+              'icon',
+              seenIcon,
+              {
+                '-seen': props.partnerSeen && slug === 'watchlist',
+              },
+            ]"
+            @click="emits('onSeenItem')"
+          ></i>
+        </li> -->
       </ul>
       <img
         ref="coverImage"
@@ -70,7 +107,7 @@ watch([coverImage, () => props.item], ([newValue]) => {
     </div>
     <div class="overview-list-item-content">
       <div class="overview-list-item-content__header">
-        <h2>{{ item.title }} ({{ item.releaseYear }})</h2>
+        <span class="overview-list-item-content__header-title">{{ item.title }} ({{ item.releaseYear }})</span>
         <i v-if="item.userId === currentUser?.uid" class="icon fas fa-pen"></i>
       </div>
       <Badges
@@ -98,6 +135,30 @@ watch([coverImage, () => props.item], ([newValue]) => {
   </li>
 </template>
 <style lang="scss" scoped>
+.-liked {
+  background-color: var(--liked-color);
+
+  &:hover {
+    background-color: var(--liked-color-dark);
+  }
+}
+
+.-saved {
+  background-color: var(--saved-color);
+
+  &:hover {
+    background-color: var(--saved-color-dark);
+  }
+}
+
+.-seen {
+  background-color: var(--seen-color);
+
+  &:hover {
+    background-color: var(--seen-color-dark);
+  }
+}
+
 .overview-list-item {
   display: grid;
   grid-template-columns: 178px 1fr;
@@ -153,6 +214,13 @@ watch([coverImage, () => props.item], ([newValue]) => {
       justify-content: space-between;
       align-items: center;
 
+      &-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: bold;
+        font-size: var(--font-size-large);
+      }
+
+      font-family: 'Poppins', sans-serif;
       font-weight: bold;
       font-size: var(--font-size-large);
 
@@ -169,9 +237,19 @@ watch([coverImage, () => props.item], ([newValue]) => {
     }
 
     &__badges,
-    &__description,
-    &__actors {
-      margin-bottom: var(--spacing-large);
+    &__description {
+      margin-bottom: var(--spacing);
+    }
+
+    &__actors,
+    &__directors {
+      font-family: 'Poppins', sans-serif;
+      font-style: normal;
+      font-size: var(--font-size-small);
+
+      & > span {
+        font-style: italic;
+      }
     }
   }
 }

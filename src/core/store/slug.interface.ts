@@ -1,0 +1,1 @@
+export type SlugTypes = 'cinema' | 'my-partner' | 'watchlist'

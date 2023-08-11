@@ -105,10 +105,9 @@ function setValue(option: any) {
   outline: none;
   width: 100%;
   height: auto;
-  background-color: var(--background-color);
+  background-color: transparent;
   padding: var(--spacing) var(--spacing-large);
   border-radius: var(--border-radius);
-  box-shadow: inset 0px 2px 2px rgba(0, 0, 0, 0.25);
   &:focus,
   &:hover {
     &:not(.nxt-button--primary) {

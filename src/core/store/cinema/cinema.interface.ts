@@ -3,7 +3,7 @@ import { Actor } from "./actors.interface";
 import { Director } from "./directors.interface";
 
 export interface Cinema {
-  id: number;
+  id: string;
   title: string;
   releaseYear: number;
   genres: Array<Genre>;

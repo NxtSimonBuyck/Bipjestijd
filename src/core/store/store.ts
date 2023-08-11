@@ -1,15 +1,16 @@
 import { User } from "./user/user.interface";
-import { InjectionKey } from "vue";
-import { createStore, useStore as baseUseStore, Store } from "vuex";
+import { createStore } from "vuex";
+import modules from './modules';
+import { Cinema } from "./cinema/cinema.interface";
 
-interface storeState {
+export interface StoreState {
   user: User;
 }
 
-export const key: InjectionKey<Store<storeState>> = Symbol();
-export const store = createStore<storeState>({
+export const store = createStore<StoreState>({
   state: {
     user: {} as User,
+    partner: {} as Cinema,
   },
   getters: {},
   mutations: {
@@ -17,14 +18,6 @@ export const store = createStore<storeState>({
       state.user = user;
     },
   },
-  actions: {
-    update(context) {
-      context.commit("increment");
-    },
-  },
-  modules: {},
+  actions: {},
+  modules
 });
-
-export function useStore() {
-  return baseUseStore(key);
-}

@@ -1,10 +1,21 @@
+import { DocumentReference } from "firebase/firestore";
 import { Cinema } from "../cinema/cinema.interface";
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
+  photoURL: string;
   partner?: User;
-  savedMovies: Array<Cinema>;
-  savedSeries: Array<Cinema>;
+  likedCollectionId: string;
+  seenCollectionId: string;
+  savedCollectionId: string;
+  saved: UserCinemaCollection;
+  seen: UserCinemaCollection;
+  liked: UserCinemaCollection;
+}
+
+export interface UserCinemaCollection {
+  movies: Cinema[];
+  series: Cinema[];
 }

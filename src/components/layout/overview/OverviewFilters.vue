@@ -14,7 +14,6 @@ const auth = useFirebaseAuth()!;
 
 function logout() {
   auth.signOut();
-  console.log("logout");
 }
 // #endregion
 

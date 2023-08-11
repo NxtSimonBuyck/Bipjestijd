@@ -4,7 +4,8 @@ import { watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
-import { useStore } from "./core/store/store";
+import { useStore } from "./core/hooks/useStore";
+import { userMapper } from "./core/helpers/mapper.helper";
 
 const currentFirebaseUser = useCurrentUser();
 const route = useRoute();
@@ -12,13 +13,12 @@ const router = useRouter();
 const { commit } = useStore();
 
 watch(currentFirebaseUser, async (currenUser, previousUser) => {
-  console.log("currenUser", currenUser);
   if (currenUser?.uid) {
     getDoc(doc(collection(db, "users"), currenUser.uid))
-      .then((doc) => {
+      .then(async (doc) => {
         if (doc.exists()) {
-          console.log("doc", { id: currenUser.uid, ...doc.data() });
-          commit("SET_USER", { id: currenUser.uid, ...doc.data() });
+          const user = await userMapper(doc);
+          commit("SET_USER", user);
         } else {
           console.log("doc not exists");
         }

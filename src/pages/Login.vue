@@ -18,10 +18,7 @@ async function getUserData(user: UserCredential) {
   const docRef = doc(db, "users", user.user.uid);
   const docSnap = await getDoc(docRef);
 
-  if (docSnap.exists()) {
-    // TODO: update user data in store
-    console.log("Document data:", docSnap.data());
-  } else {
+  if (!docSnap.exists()) {
     await setDoc(doc(db, "users", user.user.uid), {
       name: user.user.displayName,
       email: user.user.email,

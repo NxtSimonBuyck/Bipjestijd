@@ -1,5 +1,9 @@
 @import "./assets/scss/root.scss";
 @import "reset-css";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+// import poppins font
+
 
 // make 10px = 1rem
 *,
@@ -14,6 +18,7 @@ html,
 body {
   font-size: 62.5%;
   font-family: 'Poppins', sans-serif;
+  line-height: normal;
 }
 
 body {
@@ -22,7 +27,7 @@ body {
 }
 
 #app {
-  font-size: var(--font-size);
+  font-size: var(--font-size-small);
 }
 
 .icon {
@@ -34,6 +39,8 @@ body {
   justify-content: center;
   border-radius: var(--border-radius);
   background-color: var(--background-color);
+
+  cursor: pointer;
 
   &:hover {
     background-color: var(--primary-color-dark);
