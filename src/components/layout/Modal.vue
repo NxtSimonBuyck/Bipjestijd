@@ -4,6 +4,8 @@ defineProps({
 
   primaryButtonText: { type: String, default: "Save" },
   secondaryButtonText: { type: String, default: "Cancel" },
+  width: { type: String, default: "60vw" },
+  height: { type: String, default: "75vh" },
 });
 
 const emits = defineEmits<{
@@ -13,23 +15,28 @@ const emits = defineEmits<{
 </script>
 <template>
   <div class="modal-overlay">
-    <div class="modal">
+    <div class="modal" :style="{ width, height }">
       <slot name="header">
-        <div>
-          <header>
-            <h2>{{ title }}</h2>
-            <i class="icon fas fa-times" @click="emits('onClose')"></i>
-          </header>
-        </div>
+        <header :style="{ width }">
+          <h2>{{ title }}</h2>
+          <i class="icon fas fa-times" @click="emits('onClose')"></i>
+        </header>
       </slot>
       <div class="content">
         <slot></slot>
       </div>
       <slot name="footer">
-          <footer>
-            <p class="button button--secondary" @click="emits('onClose')">Cancel</p>
-            <p class="button button--primary" @click="emits('onPrimaryAction')">Save</p>
-          </footer>
+        <footer>
+          <button class="button button--secondary" @click="emits('onClose')">
+            {{ secondaryButtonText || "Cancel" }}
+          </button>
+          <button
+            class="button button--primary"
+            @click="emits('onPrimaryAction')"
+          >
+            {{ primaryButtonText || "Save" }}
+          </button>
+        </footer>
       </slot>
     </div>
   </div>
@@ -44,14 +51,12 @@ const emits = defineEmits<{
   display: flex;
   z-index: 1000;
   justify-content: center;
-  background-color: #000000da;
+  background-color: #00000085;
   color: var(--text-color);
 }
 
 .modal {
   background-color: var(--background-color);
-  height: 75vh;
-  width: 60vw;
   margin: auto;
   border-radius: var(--border-radius);
 }
@@ -61,7 +66,7 @@ header {
   justify-content: space-between;
   align-items: center;
 
-  width: 60vw;
+  width: 100%;
   height: 5rem;
 
   padding: var(--spacing) var(--spacing-large);
@@ -86,7 +91,7 @@ footer {
 .content {
   padding: var(--spacing) var(--spacing-large);
   overflow-y: scroll;
-  height: calc(75vh - 5rem - 5rem);
+  height: calc(100% - 10rem);
   margin-top: 5rem;
 }
 </style>

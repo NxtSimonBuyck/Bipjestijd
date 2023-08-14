@@ -107,7 +107,7 @@ watch([coverImage, () => props.item], ([newValue]) => {
     </div>
     <div class="overview-list-item-content">
       <div class="overview-list-item-content__header">
-        <span class="overview-list-item-content__header-title">{{ item.title }} ({{ item.releaseYear }})</span>
+        <span :title="`${item.title} (${item.releaseYear})`" class="overview-list-item-content__header-title">{{ item.title }} ({{ item.releaseYear }})</span>
         <i v-if="item.userId === currentUser?.uid" class="icon fas fa-pen"></i>
       </div>
       <Badges
@@ -218,6 +218,15 @@ watch([coverImage, () => props.item], ([newValue]) => {
         font-family: 'Poppins', sans-serif;
         font-weight: bold;
         font-size: var(--font-size-large);
+
+        white-space: nowrap;
+        max-width: 21vw;
+        overflow-x: scroll;
+        position: relative;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
       }
 
       font-family: 'Poppins', sans-serif;

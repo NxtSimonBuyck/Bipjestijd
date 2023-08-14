@@ -93,11 +93,11 @@ const isDark = ref(false);
       }
 
       &.-active {
-        background-color: var(--accent-color-light);
+        background-color: var(--accent-color);
         color: var(--primary-color);
 
         & > .icon {
-          background-color: var(--accent-color-light);
+          background-color: var(--accent-color);
         }
 
         &:hover {

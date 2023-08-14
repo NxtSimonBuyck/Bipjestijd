@@ -2,6 +2,7 @@
 import {
   collection,
   endBefore,
+  getCountFromServer,
   getDocs,
   orderBy,
   query,
@@ -54,8 +55,33 @@ const letters = ref([
 ]);
 const items = ref([]);
 const activeLetterIndex = ref(0);
+const disabledLetters = ref([] as Array<string>);
+
+async function checkDisabledItems() {
+  letters.value.forEach(async (letter, index) => {
+    let q = query(
+      collection(db, props.collectionName),
+      orderBy(props.orderBy),
+      startAt(letter)
+    );
+    if (index !== letters.value.length - 1) {
+      q = query(
+        collection(db, props.collectionName),
+        orderBy(props.orderBy),
+        startAt(letter),
+        endBefore(letters.value[index + 1])
+      );
+    }
+    const countSnapshot = await getCountFromServer(q);
+    if (countSnapshot.data().count === 0) {
+      disabledLetters.value.push(letter);
+    }
+  });
+}
 
 onMounted(async () => {
+  await checkDisabledItems();
+  // TODO: check first available letter
   const q = query(
     collection(db, props.collectionName),
     orderBy(props.orderBy),
@@ -71,14 +97,14 @@ watch(activeLetterIndex, (newValue) => {
   let q = query(
     collection(db, props.collectionName),
     orderBy(props.orderBy),
-    startAt(letters.value[newValue]),
-    endBefore(letters.value[newValue + 1])
+    startAt(letters.value[newValue])
   );
-  if (newValue === letters.value.length - 1)
+  if (newValue !== letters.value.length - 1)
     q = query(
       collection(db, props.collectionName),
       orderBy(props.orderBy),
-      startAt(letters.value[newValue])
+      startAt(letters.value[newValue]),
+      endBefore(letters.value[newValue + 1])
     );
   getDocs(q).then((data) => {
     items.value = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
@@ -108,14 +134,22 @@ watch(activeLetterIndex, (newValue) => {
         <li
           v-for="(letter, index) in letters"
           :key="letter"
-          :class="['letter', { '-active': activeLetterIndex === index }]"
+          :class="[
+            'letter',
+            {
+              '-active': activeLetterIndex === index,
+              '-disabled': disabledLetters.includes(letter),
+            },
+          ]"
           @click="activeLetterIndex = index"
         >
           {{ letter }}
         </li>
       </ul>
       <div class="search-form-element-content-slot">
-        <slot name="list" v-bind="{ items }"></slot>
+        <KeepAlive :max="26">
+          <slot name="list" v-bind="{ items }"></slot>
+        </KeepAlive>
       </div>
     </div>
   </div>
@@ -159,6 +193,15 @@ watch(activeLetterIndex, (newValue) => {
 
     &:hover {
       color: var(--accent-color-dark);
+    }
+  }
+
+  &.-disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+
+    &:hover {
+      color: var(--text-color);
     }
   }
 

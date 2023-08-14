@@ -6,6 +6,7 @@ export interface User {
   name: string;
   email: string;
   photoURL: string;
+  partnerId: string;
   partner?: User;
   likedCollectionId: string;
   seenCollectionId: string;

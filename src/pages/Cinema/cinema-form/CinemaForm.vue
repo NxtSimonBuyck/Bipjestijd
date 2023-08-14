@@ -62,6 +62,7 @@ import { required, minLength, numeric } from "@vuelidate/validators";
 import { useCurrentUser, useFirebaseStorage, useStorageFile } from "vuefire";
 import { addDoc, collection, doc } from "firebase/firestore";
 import { db } from "../../../firebase";
+import ActorModal from "../../../components/layout/modals/ActorModal.vue";
 
 onMounted(async () => {
   state.userId = await useCurrentUser().value!.uid;
@@ -117,11 +118,11 @@ async function handleSubmit() {
   const isValid = await v$.value.$validate();
 
   if (!isValid) return;
-  
+
   handleUploadFile();
   const newCinema = {
     title: state.title,
-    releaseYear: state.releaseYear,
+    releaseYear: +state.releaseYear,
     genres: (state.genres || []).map((genre) =>
       doc(collection(db, "genres"), genre.id)
     ),
@@ -137,7 +138,6 @@ async function handleSubmit() {
     userId: state.userId,
   };
 
-
   addDoc(collection(db, cinemaType.value), newCinema)
     .then(() => {
       // TODO: add notification call
@@ -150,6 +150,9 @@ async function handleSubmit() {
     });
 }
 // #endregion
+
+const showActorModal = ref(false);
+const showDirectorModal = ref(false);
 </script>
 <template>
   <Modal
@@ -230,7 +233,9 @@ async function handleSubmit() {
               </p>
             </Badge>
           </ul>
-          <p v-else>No results</p>
+          <div v-else>
+            <p>No results</p>
+          </div>
         </template>
       </SearchFormElement>
       <template #fallback>
@@ -260,7 +265,10 @@ async function handleSubmit() {
               </p>
             </Badge>
           </ul>
-          <p v-else>No results</p>
+          <div v-else>No results</div>
+          <p class="button--link" @click="showActorModal = true">
+            <i class="fas fa-add"></i><span> Add actor</span>
+          </p>
         </template>
       </SearchFormElement>
       <template #fallback>
@@ -293,12 +301,24 @@ async function handleSubmit() {
             </Badge>
           </ul>
           <p v-else>No results</p>
+          <p class="button--link" @click="showActorModal = true">
+            <i class="fas fa-add"></i><span> Add director</span>
+          </p>
         </template>
       </SearchFormElement>
       <template #fallback>
         <p>Loading...</p>
       </template>
     </Suspense>
+    <Transition name="fade">
+      <ActorModal v-if="showActorModal" @on-close="showActorModal = false" />
+    </Transition>
+    <Transition name="fade">
+      <DirectorModal
+        v-if="showDirectorModal"
+        @on-close="showDirectorModal = false"
+      />
+    </Transition>
   </Modal>
 </template>
 <style lang="scss" scoped>
@@ -325,5 +345,9 @@ async function handleSubmit() {
       color: var(--accent-color);
     }
   }
+}
+
+.button--link {
+  margin-top: var(--spacing);
 }
 </style>

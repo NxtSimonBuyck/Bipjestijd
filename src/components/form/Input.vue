@@ -130,6 +130,8 @@ function setLastCursorPosition(event: Event) {
 </template>
 
 <style lang="scss">
+
+
 .input {
   display: flex;
   position: relative;
@@ -138,6 +140,23 @@ function setLastCursorPosition(event: Event) {
 
 .input__input {
   flex: 1;
+  width: 300px;
+  height: 37px;
+  border-radius: var(--border-radius);
+  border-radius: 5px;
+  border: 1px solid var(--grey-color-dark);
+  background: var(--grey-color-light);
+  flex-shrink: 0;
+  padding-left: var(--spacing-large);
+
+  &::placeholder {
+    color: var(--grey-color-extradark);
+  }
+
+  &::content {
+    padding-left: var(--spacing-large);
+  }
+
   &.-right-indented {
     padding-right: calc(toRem(12) * 2 + toRem(16));
   }
@@ -146,10 +165,10 @@ function setLastCursorPosition(event: Event) {
 .input__icon {
   position: absolute;
   right: 1px;
-  border-radius: var(--nxt-radius);
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
-  background-color: var(--nxt-extralight-grey);
+  background-color: var(--grey-color);
   padding: toRem(7) toRem(12);
   &.-light {
     background: #ffffff;

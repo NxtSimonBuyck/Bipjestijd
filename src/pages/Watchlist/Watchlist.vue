@@ -10,7 +10,7 @@ const partner = computed(() => state.partner as User);
 
 const items = computed(() => {
   const items = user.value.saved.movies;
-  const partnerItems = partner.value.saved.movies;
+  const partnerItems = partner.value?.saved?.movies || [];
   const result = items.filter((item) => {
     return !partnerItems.find((i) => i.id === item.id);
   });
@@ -18,14 +18,14 @@ const items = computed(() => {
 });
 </script>
 <template>
-  <OverviewPage :slug="'watchlist'" :items="items"/>
+  <OverviewPage :slug="'watchlist'" :items="items">
+    <template #content>
+      <div>
+        <h2 class="title">Select Partner</h2>
+      </div>
+    </template>
+
+  </OverviewPage>
 </template>
 <style lang="css" scoped>
-.overview-page {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 98px 1fr 64px;
-  height: 100vh;
-  padding-right: var(--spacing-xlarge);
-}
 </style>

@@ -13,7 +13,6 @@ import { Genre } from "../store/genres/genre.interface";
 import { Actor } from "../store/cinema/actors.interface";
 import { Director } from "../store/cinema/directors.interface";
 import { User, UserCinemaCollection } from "../store/user/user.interface";
-import { get } from "firebase/database";
 
 export async function CinemaMapper(
   doc: QueryDocumentSnapshot | DocumentSnapshot
@@ -56,6 +55,7 @@ interface UserFromFirebase {
   likedCollection: DocumentReference;
   seenCollection: DocumentReference;
   savedCollection: DocumentReference;
+  partnerId: string;
 }
 
 export async function getUserCollection(userId: string, collectionName: 'saved' | 'seen' | 'liked', collectionId: string): Promise<UserCinemaCollection> {
@@ -93,6 +93,7 @@ export async function userMapper(userDoc: DocumentSnapshot): Promise<User> {
     name: data.name,
     email: data.email,
     photoURL: data.photoURL,
+    partnerId: data.partnerId,
     likedCollectionId: data.likedCollection.id,
     seenCollectionId: data.seenCollection.id,
     savedCollectionId: data.savedCollection.id,

@@ -21,6 +21,7 @@ const pages = computed(() => {
     }
   } else if (currentPageNumber === 2) {
     for (let i = currentPageNumber - 1; i <= currentPageNumber + 2; i++) {
+      // if(i > lastPageNumber) return;
       pages.push(i);
     }
   } else if (currentPageNumber === lastPageNumber - 1) {
@@ -49,6 +50,7 @@ const pages = computed(() => {
     </ul>
     <div class="dropdown">
       <select v-model="perPage">
+        <option value="2">2</option>
         <option value="10">10</option>
         <option value="20">20</option>
         <option value="30">30</option>

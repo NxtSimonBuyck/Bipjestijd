@@ -4,18 +4,11 @@ import OverviewFilters from "./OverviewFilters.vue";
 import OverviewList from "./OverviewList.vue";
 import { db } from "../../../firebase";
 import {
-  DocumentData,
-  DocumentReference,
+  Query,
   collection,
   doc,
-  endAt,
   getCountFromServer,
   getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  startAfter,
   updateDoc,
 } from "firebase/firestore";
 import { Cinema } from "../../../core/store/cinema/cinema.interface";
@@ -23,14 +16,18 @@ import { watchDebounced } from "@vueuse/core";
 import CinemaForm from "../../../pages/Cinema/cinema-form/CinemaForm.vue";
 import OverviewPaging from "./OverviewPaging.vue";
 import { useStore } from "../../../core/hooks/useStore";
-import { Genre } from "../../../core/store/genres/genre.interface";
-import { Actor } from "../../../core/store/cinema/actors.interface";
-import { Director } from "../../../core/store/cinema/directors.interface";
 import { SlugTypes } from "../../../core/store/slug.interface";
 import { User } from "../../../core/store/user/user.interface";
+import { Filter } from "../../../core/store/filter.interface";
+
+const emits = defineEmits<{
+  onGetOverviewData: [filters: Filter];
+}>();
 
 const props = defineProps({
   slug: { type: String as PropType<SlugTypes>, default: "" },
+  items: { type: Array as PropType<Cinema[]>, default: [] },
+  firebaseQuery: { type: Object as PropType<Query>, default: () => ({}) },
 });
 const slug = toRef(props, "slug");
 provide("slug", slug);
@@ -54,15 +51,9 @@ provide("lastPage", lastPage);
 const perPage = ref("10");
 provide("perPage", perPage);
 const filters = ref({
-  search: "",
   genres: [],
 });
 provide("filters", filters);
-
-watch(currentPage, async (newValue, oldValue) => {
-  const type = newValue > oldValue ? "next" : "prev";
-  await getItems(false, type);
-});
 
 watch(
   () => perPage.value,
@@ -71,17 +62,9 @@ watch(
   }
 );
 
-watchDebounced(filters.value, async () => {
+watch(filters.value, async () => {
   await getItems(true);
 });
-
-watchDebounced(
-  filters.value,
-  async () => {
-    await getItems(true);
-  },
-  { debounce: 500 }
-);
 // #endregion
 
 // #region pagination
@@ -91,15 +74,19 @@ const activeCollectionRef = computed(() => {
     : collection(db, "series");
 });
 
-const items = ref([] as Cinema[]);
-const lastVisibleItem = ref();
-const firstVisibleItem = ref();
-
 async function getPageAmount() {
-  const snapshot = await getCountFromServer(activeCollectionRef.value);
-  lastPage.value = `${Math.ceil(
-    snapshot.data().count / (+perPage.value || 20)
-  )}`;
+  console.log("props.firebaseQuery", props.firebaseQuery);
+  if (Object.keys(props.firebaseQuery).length) {
+    const snapshot = await getCountFromServer(props.firebaseQuery);
+    lastPage.value = `${Math.ceil(
+      snapshot.data().count / (+perPage.value || 20)
+    )}`;
+  } else {
+    const snapshot = await getCountFromServer(activeCollectionRef.value);
+    lastPage.value = `${Math.ceil(
+      snapshot.data().count / (+perPage.value || 20)
+    )}`;
+  }
 }
 
 watch(activeCollection, async () => {
@@ -109,68 +96,20 @@ watch(activeCollection, async () => {
 
 // TODO: refactor paging to use cursor instead of page number (https://firebase.google.com/docs/firestore/query-data/query-cursors)
 
-const getItems = async (resetPage?: boolean, type?: "prev" | "next") => {
-  let q = query(
-    activeCollectionRef.value,
-    orderBy("releaseYear", "desc"),
-    limit(+perPage.value || 20)
-  );
-  if (!!lastVisibleItem.value && !resetPage && type === "next") {
-    q = query(
-      activeCollectionRef.value,
-      orderBy("releaseYear", "desc"),
-      startAfter(lastVisibleItem.value),
-      limit(+perPage.value || 20)
-    );
+const getItems = async (resetPage?: boolean) => {
+  await getPageAmount();
+  const filter = {
+    ...filters.value,
+    currentPage: +currentPage.value,
+    perPage: +perPage.value,
+    collection: activeCollection.value,
+  } as Filter;
+
+  if (resetPage) {
+    filter.currentPage = 1;
+    currentPage.value = "1";
   }
-  if (!!firstVisibleItem.value && !resetPage && type === "prev") {
-    q = query(
-      activeCollectionRef.value,
-      orderBy("releaseYear", "desc"),
-      endAt(firstVisibleItem.value),
-      limit(+perPage.value || 20)
-    );
-  }
-
-  const data = await getDocs(q);
-  lastVisibleItem.value = data.docs[data.docs.length - 1];
-  firstVisibleItem.value = data.docs[0];
-
-  // TODO: refactor to use batch get (https://firebase.google.com/docs/firestore/query-data/queries#batched-queries)
-  const mappedItems = await Promise.all(
-    data.docs.map(async (doc) => {
-      const item = doc.data();
-      const genres = await Promise.all<Genre>(
-        item.genres.map(async (doc: DocumentReference<Genre, DocumentData>) => {
-          const genre = await getDoc(doc);
-          return { id: doc.id, ...genre.data() };
-        })
-      );
-      const actors = await Promise.all<Actor>(
-        item.actors.map(async (doc: DocumentReference<Actor, DocumentData>) => {
-          const actor = await getDoc(doc);
-          return { ...actor.data(), id: doc.id };
-        })
-      );
-      const directors = await Promise.all<Director>(
-        item.directors.map(
-          async (doc: DocumentReference<Director, DocumentData>) => {
-            const director = await getDoc(doc);
-            return { ...director.data(), id: doc.id };
-          }
-        )
-      );
-      return {
-        ...item,
-        id: doc.id,
-        genres,
-        actors,
-        directors,
-      };
-    })
-  );
-
-  items.value = mappedItems;
+  emits("onGetOverviewData", filter);
 };
 // #endregion
 
@@ -346,16 +285,18 @@ async function handleSeenItem(item: Cinema) {
     <OverviewFilters :active-collection="activeCollection" />
 
     <div class="overview-page__content">
-      <OverviewList
-        :items="items"
-        :active-collection="activeCollection"
-        @on-seen-item="handleSeenItem"
-        @on-like-item="handleLikeItem"
-        @on-save-item="handleSaveItem"
-      />
+      <slot name="content">
+        <OverviewList
+          :items="items"
+          :active-collection="activeCollection"
+          @on-seen-item="handleSeenItem"
+          @on-like-item="handleLikeItem"
+          @on-save-item="handleSaveItem"
+        />
+      </slot>
     </div>
     <OverviewPaging />
-    <i class="add-button icon -active fas fa-add" @click="openCreateForm"></i>
+    <i v-if="slug !== 'watchlist'" class="add-button icon -active fas fa-add" @click="openCreateForm"></i>
     <CinemaForm
       v-if="showCreateForm"
       :type="activeCollection"
@@ -374,6 +315,7 @@ async function handleSeenItem(item: Cinema) {
 
 .add-button {
   position: absolute;
+  z-index: 10;
   bottom: calc(64px + 16px);
   right: var(--spacing-large);
 }

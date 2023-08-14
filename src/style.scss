@@ -1,9 +1,8 @@
 @import "./assets/scss/root.scss";
 @import "reset-css";
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
 
 // import poppins font
-
 
 // make 10px = 1rem
 *,
@@ -17,7 +16,7 @@
 html,
 body {
   font-size: 62.5%;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   line-height: normal;
 }
 
@@ -54,4 +53,53 @@ body {
       background-color: var(--accent-color-dark);
     }
   }
+}
+
+.button {
+  padding: var(--spacing) var(--spacing-large);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  border: none;
+
+  background-color: var(--grey-color);
+
+  &--primary {
+    color: var(--primary-color);
+    background-color: var(--accent-color);
+  }
+  &:hover {
+    background-color: var(--accent-color-dark);
+  }
+
+  &--secondary {
+    background-color: var(--background-color);
+    border: var(--accent-color) 1px solid;
+
+    padding: calc(var(--spacing) - 1px) calc(var(--spacing-large) - 1px);
+
+    &:hover {
+      background-color: rgba($color: #D81D09, $alpha: 0.3);
+      // background-color: var(--accent-color);
+    }
+  }
+}
+
+.button--link {
+  color: var(--accent-color);
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--accent-color-dark);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
